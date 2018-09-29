@@ -69,7 +69,7 @@ if __name__ == "__main__":
 
         tic = time.clock()
         while True:
-            if RENDER_ENV or (episode % RENDER_EVERY_N == 0): env.render()
+            #if RENDER_ENV or (episode % RENDER_EVERY_N == 0): env.render()
             # 1. Choose an action based on observation
             action = PG.choose_action(observation)
             # 2. Take action in the environment
