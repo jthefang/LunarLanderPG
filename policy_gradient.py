@@ -5,7 +5,6 @@ Uses a 3 layer neural network as the policy network
 """
 import tensorflow as tf
 import numpy as np
-import math
 from tensorflow.python.framework import ops
 
 class PolicyGradient:
@@ -15,15 +14,13 @@ class PolicyGradient:
         n_y,
         learning_rate=0.01,
         reward_decay=0.95,
-        num_episodes=5000,
         load_path=None,
         save_path=None
     ):
 
         self.n_x = n_x
         self.n_y = n_y
-        self.num_episodes = num_episodes
-        self.learning_rate = learning_rate
+        self.lr = learning_rate
         self.gamma = reward_decay
 
         self.save_path = None
@@ -91,7 +88,7 @@ class PolicyGradient:
         action = np.random.choice(range(len(prob_weights.ravel())), p=prob_weights.ravel())
         return action
 
-    def learn(self, step):
+    def learn(self):
         # Discount and normalize episode reward
         discounted_episode_rewards_norm = self.discount_and_norm_rewards()
 
@@ -99,7 +96,6 @@ class PolicyGradient:
         self.sess.run(self.train_op, feed_dict={
              self.X: np.vstack(self.episode_observations).T,
              self.Y: np.vstack(np.array(self.episode_actions)).T,
-             self.step: step,
              self.discounted_episode_rewards_norm: discounted_episode_rewards_norm,
         })
 
@@ -124,12 +120,12 @@ class PolicyGradient:
         discounted_episode_rewards /= np.std(discounted_episode_rewards)
         return discounted_episode_rewards
 
+
     def build_network(self):
         # Create placeholders
         with tf.name_scope('inputs'):
             self.X = tf.placeholder(tf.float32, shape=(self.n_x, None), name="X")
             self.Y = tf.placeholder(tf.float32, shape=(self.n_y, None), name="Y")
-            self.step = tf.placeholder(tf.int32)
             self.discounted_episode_rewards_norm = tf.placeholder(tf.float32, [None, ], name="actions_value")
 
         # Initialize parameters
@@ -165,8 +161,6 @@ class PolicyGradient:
             loss = tf.reduce_mean(neg_log_prob * self.discounted_episode_rewards_norm)  # reward guided loss
 
         with tf.name_scope('train'):
-            #decays exponentially in our [num_episodes] iterations from [self.learning_rate] --> .0001
-            self.lr = 0.0001 + tf.train.exponential_decay(self.learning_rate, self.step, self.num_episodes, 1/math.e) 
             self.train_op = tf.train.AdamOptimizer(self.lr).minimize(loss)
 
     def plot_cost(self):
