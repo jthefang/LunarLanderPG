@@ -47,7 +47,7 @@ class PolicyGradient:
         # Restore model
         if load_path is not None:
             self.load_path = load_path
-            self.saver.restore(self.sess, self.load_path)
+            self.saver.restore(self.sess, tf.train.latest_checkpoint(self.load_path))
 
     def store_transition(self, s, a, r):
         """
@@ -88,7 +88,7 @@ class PolicyGradient:
         action = np.random.choice(range(len(prob_weights.ravel())), p=prob_weights.ravel())
         return action
 
-    def learn(self):
+    def learn(self, episode):
         # Discount and normalize episode reward
         discounted_episode_rewards_norm = self.discount_and_norm_rewards()
 
@@ -103,8 +103,8 @@ class PolicyGradient:
         self.episode_observations, self.episode_actions, self.episode_rewards  = [], [], []
 
         # Save checkpoint
-        if self.save_path is not None:
-            save_path = self.saver.save(self.sess, self.save_path)
+        if (self.save_path is not None) and (episode % 1000 == 0): #save weights every 1000 episodes
+            save_path = self.saver.save(self.sess, self.save_path, global_step=episode)
             print("Model saved in file: %s" % save_path)
 
         return discounted_episode_rewards_norm

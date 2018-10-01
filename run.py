@@ -42,7 +42,7 @@ RENDER_REWARD_MIN = 5000
 if __name__ == "__main__":
 
     # Load checkpoint
-    load_path = "output/weights/LunarLander/load/LunarLander-v2.ckpt"
+    load_path = "output/weights/LunarLander/load/"
     save_path = "output/weights/LunarLander/save/LunarLander-v2.ckpt"
 
     PG = PolicyGradient(
@@ -50,7 +50,7 @@ if __name__ == "__main__":
         n_y = env.action_space.n,
         learning_rate=0.02,
         reward_decay=0.99,
-        load_path=load_path,
+        #load_path=load_path,
         save_path=save_path
     )
 
@@ -95,7 +95,7 @@ if __name__ == "__main__":
                 print("Max reward so far: ", max_reward_so_far)
 
                 # 5. Train neural network
-                discounted_episode_rewards_norm = PG.learn()
+                discounted_episode_rewards_norm = PG.learn(episode)
 
                 if max_reward_so_far > RENDER_REWARD_MIN: RENDER_ENV = True
 
