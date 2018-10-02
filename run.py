@@ -65,7 +65,7 @@ if __name__ == "__main__":
         tic = time.clock()
 
         while True:
-            if RENDER_ENV: env.render()
+            #if RENDER_ENV: env.render()
 
             # 1. Choose an action based on observation
             action = PG.choose_action(observation)
