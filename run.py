@@ -35,7 +35,7 @@ print("env.observation_space.low", env.observation_space.low)
 
 
 RENDER_ENV = True
-EPISODES = 5000
+EPISODES = 50001
 rewards = []
 RENDER_REWARD_MIN = 5000
 
@@ -50,6 +50,7 @@ if __name__ == "__main__":
         n_y = env.action_space.n,
         learning_rate=0.02,
         reward_decay=0.99,
+        num_episodes=EPISODES,
         #load_path=load_path,
         save_path=save_path
     )
@@ -63,7 +64,7 @@ if __name__ == "__main__":
         tic = time.clock()
 
         while True:
-            #if RENDER_ENV: env.render()
+            if RENDER_ENV: env.render()
 
             # 1. Choose an action based on observation
             action = PG.choose_action(observation)
@@ -76,11 +77,11 @@ if __name__ == "__main__":
 
             toc = time.clock()
             elapsed_sec = toc - tic
-            if elapsed_sec > 20: #episode shouldn't last longer than 20s
+            if elapsed_sec > 30: #episode shouldn't last longer than 30s
                 done = True
 
             episode_rewards_sum = sum(PG.episode_rewards)
-            if episode_rewards_sum < -250:
+            if episode_rewards_sum < -300:
                 done = True
 
             if done:
@@ -92,7 +93,7 @@ if __name__ == "__main__":
                 print("Episode: ", episode)
                 print("Seconds: ", elapsed_sec)
                 print("Reward: ", episode_rewards_sum)
-		print("Average reward: ", np.sum(rewards) / len(rewards))
+                print("Average reward: ", np.sum(rewards) / len(rewards))
                 print("Max reward so far: ", max_reward_so_far)
 
                 # 5. Train neural network

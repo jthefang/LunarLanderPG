@@ -5,6 +5,7 @@ Uses a 3 layer neural network as the policy network
 """
 import tensorflow as tf
 import numpy as np
+import math
 from tensorflow.python.framework import ops
 
 class PolicyGradient:
@@ -14,13 +15,15 @@ class PolicyGradient:
         n_y,
         learning_rate=0.01,
         reward_decay=0.95,
+        num_episodes=5001,
         load_path=None,
         save_path=None
     ):
 
         self.n_x = n_x
         self.n_y = n_y
-        self.lr = learning_rate
+        self.learning_rate = learning_rate
+        self.num_episodes = num_episodes
         self.gamma = reward_decay
 
         self.save_path = None
@@ -96,6 +99,7 @@ class PolicyGradient:
         self.sess.run(self.train_op, feed_dict={
              self.X: np.vstack(self.episode_observations).T,
              self.Y: np.vstack(np.array(self.episode_actions)).T,
+             self.step: episode,
              self.discounted_episode_rewards_norm: discounted_episode_rewards_norm,
         })
 
@@ -104,7 +108,7 @@ class PolicyGradient:
 
         # Save checkpoint
         if (self.save_path is not None) and (episode % 1000 == 0): #save weights every 1000 episodes
-            save_path = self.saver.save(self.sess, self.save_path, global_step=episode)
+            save_path = self.saver.save(self.sess, self.save_path, global_step=episode + 4000)
             print("Model saved in file: %s" % save_path)
 
         return discounted_episode_rewards_norm
@@ -126,11 +130,12 @@ class PolicyGradient:
         with tf.name_scope('inputs'):
             self.X = tf.placeholder(tf.float32, shape=(self.n_x, None), name="X")
             self.Y = tf.placeholder(tf.float32, shape=(self.n_y, None), name="Y")
+            self.step = tf.placeholder(tf.int32)
             self.discounted_episode_rewards_norm = tf.placeholder(tf.float32, [None, ], name="actions_value")
 
         # Initialize parameters
-        units_layer_1 = 10
-        units_layer_2 = 10
+        units_layer_1 = 50
+        units_layer_2 = 25
         units_output_layer = self.n_y
         with tf.name_scope('parameters'):
             W1 = tf.get_variable("W1", [units_layer_1, self.n_x], initializer = tf.contrib.layers.xavier_initializer(seed=1))
@@ -161,6 +166,8 @@ class PolicyGradient:
             loss = tf.reduce_mean(neg_log_prob * self.discounted_episode_rewards_norm)  # reward guided loss
 
         with tf.name_scope('train'):
+            self.lr = 0.0001 + tf.train.exponential_decay(self.learning_rate, self.step, self.num_episodes, 1/math.e) 
+            #decays exponentially in our num_epsiodes iterations from self.learning_rate --> .0001
             self.train_op = tf.train.AdamOptimizer(self.lr).minimize(loss)
 
     def plot_cost(self):
