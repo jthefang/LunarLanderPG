@@ -50,7 +50,7 @@ class PolicyGradient:
         # Restore model
         if load_path is not None:
             self.load_path = load_path
-            self.saver.restore(self.sess, tf.train.latest_checkpoint(self.load_path))
+            self.saver.restore(self.sess, self.load_path)
 
     def store_transition(self, s, a, r):
         """

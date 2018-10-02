@@ -22,6 +22,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 import time
 
+def isWithinFlags(x):
+    if abs(x) <= .10:
+        return 1
+    return 0
+
 env = gym.make('LunarLander-v2')
 env = env.unwrapped
 
@@ -33,7 +38,6 @@ print("env.observation_space", env.observation_space)
 print("env.observation_space.high", env.observation_space.high)
 print("env.observation_space.low", env.observation_space.low)
 
-
 RENDER_ENV = True
 EPISODES = 2501
 rewards = []
@@ -43,7 +47,7 @@ RENDER_REWARD_MIN = 5000
 if __name__ == "__main__":
 
     # Load checkpoint
-    load_path = "output/weights/LunarLander/load/"
+    load_path = "output/weights/LunarLander/load/LunarLander-v2.ckpt-2500"
     save_path = "output/weights/LunarLander/save/LunarLander-v2.ckpt"
 
     PG = PolicyGradient(
@@ -89,7 +93,11 @@ if __name__ == "__main__":
             1.0 if self.legs[1].ground_contact else 0.0
             ]
             """
-            PG.store_transition(observation, action, reward - (1/10 * elapsed_sec) + (elapsed_sec / (28 * (observation_[0] + .012389))))
+            customReward =  reward 
+            customReward -= (1/10 * elapsed_sec) #penalize taking too long
+            customReward += 3 * isWithinFlags(observation_[0]) * (1/2 * elapsed_sec) #want to reward being between flags as time goes on
+            print(observation_[0])
+            PG.store_transition(observation, action, customReward)
 
             toc = time.clock()
             elapsed_sec = toc - tic
