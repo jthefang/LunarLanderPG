@@ -63,7 +63,7 @@ if __name__ == "__main__":
         tic = time.clock()
 
         while True:
-            if RENDER_ENV: env.render()
+            #if RENDER_ENV: env.render()
 
             # 1. Choose an action based on observation
             action = PG.choose_action(observation)
@@ -76,7 +76,7 @@ if __name__ == "__main__":
 
             toc = time.clock()
             elapsed_sec = toc - tic
-            if elapsed_sec > 120: #episode shouldn't last longer than 2 min
+            if elapsed_sec > 20: #episode shouldn't last longer than 20s
                 done = True
 
             episode_rewards_sum = sum(PG.episode_rewards)
@@ -92,6 +92,7 @@ if __name__ == "__main__":
                 print("Episode: ", episode)
                 print("Seconds: ", elapsed_sec)
                 print("Reward: ", episode_rewards_sum)
+		print("Average reward: ", np.sum(rewards) / len(rewards))
                 print("Max reward so far: ", max_reward_so_far)
 
                 # 5. Train neural network
