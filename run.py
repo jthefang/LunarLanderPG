@@ -27,6 +27,11 @@ def isWithinFlags(x):
         return 1
     return 0
 
+def isOver45deg(theta):
+    if abs(theta) > np.pi / 4: #45 degree cone
+        return 1
+    return 0
+
 env = gym.make('LunarLander-v2')
 env = env.unwrapped
 
@@ -83,20 +88,20 @@ if __name__ == "__main__":
             #print(observation_[0])
             """
             state = [
-            (pos.x - VIEWPORT_W/SCALE/2) / (VIEWPORT_W/SCALE/2),
-            (pos.y - (self.helipad_y+LEG_DOWN/SCALE)) / (VIEWPORT_H/SCALE/2),
-            vel.x*(VIEWPORT_W/SCALE/2)/FPS,
-            vel.y*(VIEWPORT_H/SCALE/2)/FPS,
-            self.lander.angle,
-            20.0*self.lander.angularVelocity/FPS,
-            1.0 if self.legs[0].ground_contact else 0.0,
-            1.0 if self.legs[1].ground_contact else 0.0
+            0: (pos.x - VIEWPORT_W/SCALE/2) / (VIEWPORT_W/SCALE/2),
+            1: (pos.y - (self.helipad_y+LEG_DOWN/SCALE)) / (VIEWPORT_H/SCALE/2),
+            2: vel.x*(VIEWPORT_W/SCALE/2)/FPS,
+            3: vel.y*(VIEWPORT_H/SCALE/2)/FPS,
+            4: self.lander.angle,
+            5: 20.0*self.lander.angularVelocity/FPS,
+            6: 1.0 if self.legs[0].ground_contact else 0.0,
+            7: 1.0 if self.legs[1].ground_contact else 0.0
             ]
             """
             customReward =  reward 
             customReward -= (1/10 * elapsed_sec) #penalize taking too long
             customReward += 3 * isWithinFlags(observation_[0]) * (1/2 * elapsed_sec) #want to reward being between flags as time goes on
-            print(observation_[0])
+            customReward -= abs(observation_[4]) * isOver45deg(observation_[4]) #penalize angle outside 45 degree cone, (pi / 4) radians
             PG.store_transition(observation, action, customReward)
 
             toc = time.clock()
