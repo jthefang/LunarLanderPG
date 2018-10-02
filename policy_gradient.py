@@ -104,11 +104,11 @@ class PolicyGradient:
         })
 
         # Reset the episode data
-        self.episode_observations, self.episode_actions, self.episode_rewards  = [], [], []
+        self.episode_observations, self.episode_actions, self.episode_rewards, self.stock_episode_rewards  = [], [], [], []
 
         # Save checkpoint
-        if (self.save_path is not None) and (episode % 1000 == 0): #save weights every 1000 episodes
-            save_path = self.saver.save(self.sess, self.save_path, global_step=episode + 4000)
+        if (self.save_path is not None) and (episode % 500 == 0): #save weights every 1000 episodes
+            save_path = self.saver.save(self.sess, self.save_path, global_step=episode)
             print("Model saved in file: %s" % save_path)
 
         return discounted_episode_rewards_norm

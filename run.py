@@ -35,8 +35,9 @@ print("env.observation_space.low", env.observation_space.low)
 
 
 RENDER_ENV = True
-EPISODES = 50001
+EPISODES = 2501
 rewards = []
+stock_rewards = []
 RENDER_REWARD_MIN = 5000
 
 if __name__ == "__main__":
@@ -48,7 +49,7 @@ if __name__ == "__main__":
     PG = PolicyGradient(
         n_x = env.observation_space.shape[0],
         n_y = env.action_space.n,
-        learning_rate=0.02,
+        learning_rate=0.002,
         reward_decay=0.99,
         num_episodes=EPISODES,
         #load_path=load_path,
@@ -64,16 +65,31 @@ if __name__ == "__main__":
         tic = time.clock()
 
         while True:
-            #if RENDER_ENV: env.render()
+            if RENDER_ENV: env.render()
 
             # 1. Choose an action based on observation
             action = PG.choose_action(observation)
 
             # 2. Take action in the environment
+            toc = time.clock()
+            elapsed_sec = toc - tic
             observation_, reward, done, info = env.step(action)
 
             # 4. Store transition for training
-            PG.store_transition(observation, action, reward)
+            #print(observation_[0])
+            """
+            state = [
+            (pos.x - VIEWPORT_W/SCALE/2) / (VIEWPORT_W/SCALE/2),
+            (pos.y - (self.helipad_y+LEG_DOWN/SCALE)) / (VIEWPORT_H/SCALE/2),
+            vel.x*(VIEWPORT_W/SCALE/2)/FPS,
+            vel.y*(VIEWPORT_H/SCALE/2)/FPS,
+            self.lander.angle,
+            20.0*self.lander.angularVelocity/FPS,
+            1.0 if self.legs[0].ground_contact else 0.0,
+            1.0 if self.legs[1].ground_contact else 0.0
+            ]
+            """
+            PG.store_transition(observation, action, reward - (1/10 * elapsed_sec) + (elapsed_sec / (28 * (observation_[0] + .012389))))
 
             toc = time.clock()
             elapsed_sec = toc - tic
@@ -85,7 +101,6 @@ if __name__ == "__main__":
                 done = True
 
             if done:
-                episode_rewards_sum = sum(PG.episode_rewards)
                 rewards.append(episode_rewards_sum)
                 max_reward_so_far = np.amax(rewards)
 
