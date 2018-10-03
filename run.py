@@ -52,7 +52,7 @@ RENDER_REWARD_MIN = 5000
 if __name__ == "__main__":
 
     # Load checkpoint
-    load_path = "output/weights/LunarLander/load/LunarLander-v2.ckpt-2500"
+    load_path = "output/weights/LunarLander/reward-l-cf-45cone/LunarLander-v2.ckpt-2500"
     save_path = "output/weights/LunarLander/save/LunarLander-v2.ckpt"
 
     PG = PolicyGradient(
@@ -100,7 +100,7 @@ if __name__ == "__main__":
             """
             customReward =  reward 
             customReward -= (1/10 * elapsed_sec) #penalize taking too long
-            customReward += 3 * isWithinFlags(observation_[0]) * (1/2 * elapsed_sec) #want to reward being between flags as time goes on
+            customReward += 3 * isWithinFlags(observation_[0]) #want to reward being between flags
             customReward -= abs(observation_[4]) * isOver45deg(observation_[4]) #penalize angle outside 45 degree cone, (pi / 4) radians
             PG.store_transition(observation, action, customReward)
 
