@@ -1,2 +1,6 @@
-model_checkpoint_path: "LunarLander-v2.ckpt-0"
-all_model_checkpoint_paths: "LunarLander-v2.ckpt-0"
+model_checkpoint_path: "LunarLander-v2.ckpt-2500"
+all_model_checkpoint_paths: "LunarLander-v2.ckpt-500"
+all_model_checkpoint_paths: "LunarLander-v2.ckpt-1000"
+all_model_checkpoint_paths: "LunarLander-v2.ckpt-1500"
+all_model_checkpoint_paths: "LunarLander-v2.ckpt-2000"
+all_model_checkpoint_paths: "LunarLander-v2.ckpt-2500"
