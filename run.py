@@ -60,9 +60,7 @@ if __name__ == "__main__":
         n_y = env.action_space.n,
         learning_rate=0.002,
         reward_decay=0.99,
-        num_episodes=EPISODES,
-        #load_path=load_path,
-        save_path=save_path
+        num_episodes=EPISODES
     )
 
 
@@ -73,8 +71,9 @@ if __name__ == "__main__":
 
         tic = time.clock()
 
+        numStepsInEpisode = 0
         while True:
-            #if RENDER_ENV: env.render()
+            if RENDER_ENV: env.render()
 
             # 1. Choose an action based on observation
             action = PG.choose_action(observation)
@@ -98,11 +97,14 @@ if __name__ == "__main__":
             7: 1.0 if self.legs[1].ground_contact else 0.0
             ]
             """
-            customReward =  reward 
-            customReward -= (1/10 * elapsed_sec) #penalize taking too long
-            customReward += 3 * isWithinFlags(observation_[0]) #want to reward being between flags
-            customReward -= abs(observation_[4]) * isOver45deg(observation_[4]) #penalize angle outside 45 degree cone, (pi / 4) radians
-            PG.store_transition(observation, action, customReward)
+            obs_meters = 100 * observation_
+            xPos, yPos, xVel, yVel =obs_meters[0],obs_meters[1],obs_meters[2],obs_meters[3]
+            vel = np.sqrt(xVel**2 + yVel**2)
+            dist = np.sqrt(xPos**2 + yPos**2)
+            print("xPos: {}, yPos: {}, xVel: {}, yVel: {}".format(np.round(xPos, 3), np.round(yPos, 3), np.round(xVel, 3), np.round(yVel, 3)))
+            #print("Distance: {}".format(dist))
+            PG.store_transition(observation, action, reward)
+            numStepsInEpisode += 1
 
             toc = time.clock()
             elapsed_sec = toc - tic
@@ -123,13 +125,12 @@ if __name__ == "__main__":
                 print("Reward: ", episode_rewards_sum)
                 print("Average reward: ", np.sum(rewards) / len(rewards))
                 print("Max reward so far: ", max_reward_so_far)
+                print("Num steps taken this episode:", numStepsInEpisode)
 
                 # 5. Train neural network
                 discounted_episode_rewards_norm = PG.learn(episode)
 
                 if max_reward_so_far > RENDER_REWARD_MIN: RENDER_ENV = True
-
-
                 break
 
             # Save new observation

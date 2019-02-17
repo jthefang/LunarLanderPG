@@ -1,7 +1,0 @@
-Naming of the reward folders encodes what's included in the reward function:
-
-Key
-l = length of episode penalized
-c0 = reward closeness to center 0
-cf = reward centered between flags
-45cone = penalize angle of lander outside 45 degree cone
